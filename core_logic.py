@@ -271,7 +271,10 @@ class RedditScraper:
             print(f"[ERROR] Reddit r/{subreddit} RSS: {e}")
             return []
 
-        soup = BeautifulSoup(resp.text, "xml")
+        try:
+            soup = BeautifulSoup(resp.text, "xml")
+        except Exception:
+            soup = BeautifulSoup(resp.text, "html.parser")
         entries = soup.find_all("entry")
         articles = []
 

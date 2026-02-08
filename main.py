@@ -18,8 +18,6 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel
 
-from apscheduler.schedulers.background import BackgroundScheduler
-
 from core_logic import scrape_all, scrape_source, SCRAPERS
 from tools import now_iso, ensure_data_dir
 from supabase_store import (
@@ -30,6 +28,12 @@ from supabase_store import (
     check_connection,
 )
 
+try:
+    from apscheduler.schedulers.background import BackgroundScheduler
+    HAS_SCHEDULER = True
+except ImportError:
+    HAS_SCHEDULER = False
+
 # ---------------------------------------------------------------------------
 # Environment Detection
 # ---------------------------------------------------------------------------
@@ -39,9 +43,9 @@ if sys.platform == "win32":
 IS_SERVERLESS = bool(os.environ.get("VERCEL") or os.environ.get("AWS_LAMBDA_FUNCTION_NAME"))
 
 # ---------------------------------------------------------------------------
-# Scheduler Setup
+# Scheduler Setup (skipped in serverless)
 # ---------------------------------------------------------------------------
-scheduler = BackgroundScheduler()
+scheduler = BackgroundScheduler() if HAS_SCHEDULER and not IS_SERVERLESS else None
 
 
 def scheduled_scrape():
@@ -84,7 +88,7 @@ async def lifespan(app: FastAPI):
     else:
         print("[STARTUP] WARNING: Supabase connection failed! Check .env")
 
-    if not IS_SERVERLESS:
+    if not IS_SERVERLESS and scheduler:
         # Run initial scrape if no data exists
         existing = load_articles()
         if not existing:
@@ -101,7 +105,7 @@ async def lifespan(app: FastAPI):
     yield
 
     # Shutdown
-    if not IS_SERVERLESS:
+    if not IS_SERVERLESS and scheduler:
         scheduler.shutdown(wait=False)
         print("[SHUTDOWN] Scheduler stopped.")
 
