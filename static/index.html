@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Glaido — AI News Aggregator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <!-- ==================== NAVBAR ==================== -->
+    <nav class="navbar">
+        <div class="nav-left">
+            <a href="/" class="logo-link">
+                <img src="/brand/glaido-main-white.svg" alt="Glaido" class="logo">
+            </a>
+            <span class="nav-divider"></span>
+            <span class="nav-subtitle">AI News</span>
+        </div>
+        <div class="nav-right">
+            <div class="status-indicator" id="statusDot">
+                <span class="dot"></span>
+                <span class="status-text">Live</span>
+            </div>
+            <button class="btn-refresh" id="btnRefresh" title="Refresh articles">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="23 4 23 10 17 10"></polyline>
+                    <polyline points="1 20 1 14 7 14"></polyline>
+                    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                </svg>
+            </button>
+            <button class="btn-scrape" id="btnScrape" title="Force new scrape">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                </svg>
+                <span>Scrape Now</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- ==================== FILTERS ==================== -->
+    <section class="filters-bar">
+        <div class="filter-tabs" id="filterTabs">
+            <button class="filter-tab active" data-source="all">All Sources</button>
+            <button class="filter-tab" data-source="bens_bites">Ben's Bites</button>
+            <button class="filter-tab" data-source="the_rundown">The Rundown AI</button>
+            <button class="filter-tab" data-source="reddit">Reddit AI</button>
+            <button class="filter-tab" data-source="saved">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+                    <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+                </svg>
+                Saved
+            </button>
+        </div>
+        <div class="article-count" id="articleCount">—</div>
+    </section>
+
+    <!-- ==================== MAIN CONTENT ==================== -->
+    <main class="dashboard">
+        <!-- Loading State -->
+        <div class="loading-state" id="loadingState">
+            <div class="loader"></div>
+            <p>Fetching the latest AI news...</p>
+        </div>
+
+        <!-- Empty State -->
+        <div class="empty-state hidden" id="emptyState">
+            <div class="empty-icon">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#99A1AF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+            </div>
+            <h3>No articles found</h3>
+            <p>Try scraping for the latest news or check back later.</p>
+        </div>
+
+        <!-- Bento Grid Container -->
+        <div class="bento-grid hidden" id="bentoGrid">
+            <!-- Cards injected by JS -->
+        </div>
+    </main>
+
+    <!-- ==================== TOAST ==================== -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>
