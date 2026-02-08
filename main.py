@@ -31,10 +31,12 @@ from supabase_store import (
 )
 
 # ---------------------------------------------------------------------------
-# Ensure UTF-8 output on Windows
+# Environment Detection
 # ---------------------------------------------------------------------------
 if sys.platform == "win32":
     os.environ.setdefault("PYTHONIOENCODING", "utf-8")
+
+IS_SERVERLESS = bool(os.environ.get("VERCEL") or os.environ.get("AWS_LAMBDA_FUNCTION_NAME"))
 
 # ---------------------------------------------------------------------------
 # Scheduler Setup
@@ -82,22 +84,26 @@ async def lifespan(app: FastAPI):
     else:
         print("[STARTUP] WARNING: Supabase connection failed! Check .env")
 
-    # Run initial scrape if no data exists
-    existing = load_articles()
-    if not existing:
-        print("[STARTUP] No articles found. Running initial scrape...")
-        scheduled_scrape()
+    if not IS_SERVERLESS:
+        # Run initial scrape if no data exists
+        existing = load_articles()
+        if not existing:
+            print("[STARTUP] No articles found. Running initial scrape...")
+            scheduled_scrape()
 
-    # Start the 24-hour scheduler
-    scheduler.add_job(scheduled_scrape, "interval", hours=24, id="scrape_cycle")
-    scheduler.start()
-    print("[STARTUP] Scheduler started — scraping every 24 hours.")
+        # Start the 24-hour scheduler
+        scheduler.add_job(scheduled_scrape, "interval", hours=24, id="scrape_cycle")
+        scheduler.start()
+        print("[STARTUP] Scheduler started — scraping every 24 hours.")
+    else:
+        print("[STARTUP] Serverless mode — scheduler disabled.")
 
     yield
 
     # Shutdown
-    scheduler.shutdown(wait=False)
-    print("[SHUTDOWN] Scheduler stopped.")
+    if not IS_SERVERLESS:
+        scheduler.shutdown(wait=False)
+        print("[SHUTDOWN] Scheduler stopped.")
 
 
 # ---------------------------------------------------------------------------
